@@ -31,7 +31,7 @@ export default function Register(props) {
             const body = JSON.stringify(form);
 
             const response = await API.post("/auth/register", body, config)
-            console.log(response)
+                (response)
 
             if (response) {
                 await AsyncStorage.setItem('token', response.data.token)

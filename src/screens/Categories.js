@@ -49,9 +49,9 @@ export default function Categories(props) {
         try {
             const token = await AsyncStorage.getItem('token')
             const user_id = await AsyncStorage.getItem('user_id')
-            // setCategory({
-            //     user_id
-            // })
+            setCategory({
+                user_id
+            })
 
             if (token === null) {
                 props.navigation.navigate("Login")

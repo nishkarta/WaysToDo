@@ -91,6 +91,8 @@ export default function List(props) {
         })
     }
 
+
+
     const getUserName = async () => {
         try {
             const user_name = await AsyncStorage.getItem('user_name');
@@ -101,13 +103,17 @@ export default function List(props) {
             console.log(error)
         }
     }
-
+    const [category, setCategory] = React.useState({ user_id: null })
     const [dataCategory, setDataCategory] = React.useState([])
 
     const findUserCategories = async () => {
         try {
             const token = await AsyncStorage.getItem('token')
             const user_id = await AsyncStorage.getItem('user_id')
+            setCategory({
+                user_id
+            })
+
             if (token === null) {
                 props.navigation.navigate("Login")
             }
@@ -125,32 +131,32 @@ export default function List(props) {
         }
     }
 
-
-    const [list, setList] = React.useState({ user_id: null, status: null })
-
-    const handleAddList = async () => {
+    const [dataList, setDataList] = React.useState([])
+    const getLists = async () => {
         try {
             const token = await AsyncStorage.getItem('token')
+            const user_id = await AsyncStorage.getItem('user_id')
 
             if (!token) {
                 props.navigation.navigate("Login")
             }
-
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: 'Bearer ' + token
                 }
             }
-            const response = await API.post("/AddList")
-        } catch (err) {
-            console.log(err)
+            const response = await API.get(`FindLists?user_id=${user_id}`, config)
+            setDataList(response.data)
+        } catch (error) {
+            console.log(error)
         }
     }
 
     React.useEffect(() => {
         getUserName()
         findUserCategories()
+        getLists()
     }, [])
 
     return (
@@ -197,7 +203,7 @@ export default function List(props) {
                 </Stack>
             </View>
             <View p={6} className="bottom" style={{ flex: 3 }}>
-                <FlatList data={DummyList} renderItem={(itemData) => {
+                <FlatList data={dataList} renderItem={(itemData) => {
                     return (
                         <Pressable onPress={() => props.navigation.navigate("Detail", { itemData })}>
                             <Box borderRadius={5} bg="lightBlue.100" m={2} p={3}>

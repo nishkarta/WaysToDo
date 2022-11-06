@@ -6,7 +6,7 @@ import { Box, CheckIcon, HStack, Input, Pressable, Select, Text, TextArea, View 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API } from '../config/api';
 
-export default function AddList() {
+export default function AddList(props) {
     const [date, setDate] = React.useState(new Date())
     const [mode, setMode] = React.useState('date')
     const [show, setShow] = React.useState(false)
@@ -33,9 +33,11 @@ export default function AddList() {
         try {
             const token = await AsyncStorage.getItem('token')
             const user_id = await AsyncStorage.getItem('user_id')
-            // setList({
-            //     user_id,
-            // })
+            setList({
+                user_id,
+                status: "todo",
+                date: new Date()
+            })
 
             if (token === null) {
                 props.navigation.navigate("Login")
@@ -54,7 +56,37 @@ export default function AddList() {
         }
     }
 
-    console.log(dataCategory)
+    const [list, setList] = React.useState({ user_id: null, status: null })
+
+    function handleOnChange(name, value) {
+        setList({
+            ...list,
+            [name]: value,
+
+        });
+    };
+
+    const handleAddList = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+
+            if (!token) {
+                props.navigation.navigate("Login")
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const response = await API.post("/AddList", list, config)
+            alert("List Successfully Added")
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     React.useEffect(() => {
         findUserCategories()
     }, [])
@@ -64,9 +96,9 @@ export default function AddList() {
             <Text mb={6} bold fontSize="2xl">Add List</Text>
             <Box alignItems="center">
 
-                <Input bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="3" placeholder="Name" w="100%" />
+                <Input value={list.name} name="name" onChangeText={(value) => handleOnChange("name", value)} bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="3" placeholder="Name" w="100%" />
 
-                <Select bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="5px" w="100%" placeholder='Category' accessibilityLabel='Categories' _selectedItem={{
+                <Select name="category" onValueChange={(value) => handleOnChange("category", value)} bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="5px" w="100%" placeholder='Category' accessibilityLabel='Categories' _selectedItem={{
                     bg: "teal.600",
                     endIcon: <CheckIcon size={5} />,
                 }}
@@ -86,8 +118,8 @@ export default function AddList() {
                     </HStack>
                 </Pressable>
 
-                <TextArea h={150} mb={100} bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mx="3" placeholder="Description" w="100%" />
-                <Pressable w="100%" rounded={8} shadow={3} mb={3} p={3} bg="#FF5555"><Text bold style={{ color: 'white', textAlign: 'center' }}>Add List</Text></Pressable>
+                <TextArea name="desc" value={list.desc} onChangeText={(value) => handleOnChange("desc", value)} h={150} mb={100} bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mx="3" placeholder="Description" w="100%" />
+                <Pressable w="100%" onPress={handleAddList} rounded={8} shadow={3} mb={3} p={3} bg="#FF5555"><Text bold style={{ color: 'white', textAlign: 'center' }}>Add List</Text></Pressable>
 
                 {show && (<DateTimePicker
                     testID='dateTimePicker'
