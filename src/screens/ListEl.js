@@ -82,41 +82,83 @@ export default function List(props) {
         setMode(currentMode)
     }
 
-    const [userName, setUserName] = React.useState('')
+    const [userName, setUserName] = React.useState({ user_name: null })
 
-    const getUser = async () => {
+    const handleOnChange = (name, value) => {
+        setList({
+            ...list,
+            [name]: value,
+        })
+    }
+
+    const getUserName = async () => {
+        try {
+            const user_name = await AsyncStorage.getItem('user_name');
+            setUserName({
+                user_name
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const [dataCategory, setDataCategory] = React.useState([])
+
+    const findUserCategories = async () => {
         try {
             const token = await AsyncStorage.getItem('token')
+            const user_id = await AsyncStorage.getItem('user_id')
             if (token === null) {
                 props.navigation.navigate("Login")
             }
+
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: 'Bearer ' + token
                 }
             }
-            const response = await API.get("/auth/user", config)
-            // console.log(response)
-            // const userName = response.data.user.firstName
-            // console.log(response)
-            setUserName(response.data.user.firstName)
-            console.log("ini userName", userName)
-        } catch (error) {
-            console.log(error)
+            const response = await API.get(`/UserCategories?user_id=${user_id}`, config)
+            setDataCategory(response.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+
+    const [list, setList] = React.useState({ user_id: null, status: null })
+
+    const handleAddList = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+
+            if (!token) {
+                props.navigation.navigate("Login")
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const response = await API.post("/AddList")
+        } catch (err) {
+            console.log(err)
         }
     }
 
     React.useEffect(() => {
-        getUser()
-    })
+        getUserName()
+        findUserCategories()
+    }, [])
 
     return (
         <>
             <View p={7} className="top" style={{ flex: 1 }}>
                 <HStack mb={3} justifyContent="space-between">
                     <VStack>
-                        <Text bold fontSize="2xl">Hi {userName}.. 😚</Text>
+                        <Text bold fontSize="2xl">{`Hi ${userName.user_name}.. 😚`}</Text>
                         <Text color="#FF5555">20 Lists</Text>
                     </VStack>
                     <Image alt="profile" source={{ uri: "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667558303/WaysTodo/wes-hicks-AgPVsu54j8Q-unsplash_czl1gv.jpg" }} width={20} height={20} borderRadius={50} borderWidth={3} borderColor="#FF5555" />
@@ -136,9 +178,9 @@ export default function List(props) {
                             endIcon: <CheckIcon size={5} />,
                         }}
                         >
-                            <Select.Item label="Study" value="study" />
-                            <Select.Item label="Workout" value="workout" />
-                            <Select.Item label="Homework" value="homework" />
+                            {dataCategory?.map((item, index) => (
+                                <Select.Item key={index} label={item?.name} value={item.name} />
+                            ))}
                         </Select>
                         <Select w="100px" bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="5px" placeholder='Status' accessibilityLabel='Status' _selectedItem={{
                             bg: "teal.600",

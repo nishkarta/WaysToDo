@@ -3,6 +3,8 @@ import * as React from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Box, CheckIcon, HStack, Input, Pressable, Select, Text, TextArea, View } from "native-base";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API } from '../config/api';
 
 export default function AddList() {
     const [date, setDate] = React.useState(new Date())
@@ -25,6 +27,38 @@ export default function AddList() {
         setMode(currentMode)
     }
 
+    const [dataCategory, setDataCategory] = React.useState([])
+
+    const findUserCategories = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const user_id = await AsyncStorage.getItem('user_id')
+            // setList({
+            //     user_id,
+            // })
+
+            if (token === null) {
+                props.navigation.navigate("Login")
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const response = await API.get(`/UserCategories?user_id=${user_id}`, config)
+            setDataCategory(response.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    console.log(dataCategory)
+    React.useEffect(() => {
+        findUserCategories()
+    }, [])
+
     return (
         <View p={30}>
             <Text mb={6} bold fontSize="2xl">Add List</Text>
@@ -38,10 +72,11 @@ export default function AddList() {
                 }}
 
                 >
+                    {dataCategory?.map((item, index) => (
+                        <Select.Item key={index} label={item?.name} value={item.name} />
+                    ))}
 
-                    <Select.Item label="Study" value="study" />
-                    <Select.Item label="Workout" value="workout" />
-                    <Select.Item label="Homework" value="homework" />
+
                 </Select>
                 <Pressable title='DatePicker' onPress={() => showMode('date')} p={3} h={47} bg="blueGray.200" borderRadius={8} borderWidth={2} borderColor="blueGray.400" mb="3" w="100%">
                     <HStack justifyContent="space-between">

@@ -1,24 +1,8 @@
 import * as React from 'react'
 import { View, Text, Box, Input, Pressable, FlatList, Flex, Button, ScrollView } from "native-base";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { API } from '../config/api';
 
-
-const DummyList = [
-    {
-        id: 1,
-        name: "Study"
-    },
-    {
-        id: 2,
-        name: "Home Work"
-    },
-    {
-        id: 3,
-        name: "Work Out"
-    },
-]
 
 export default function Categories(props) {
     const [category, setCategory] = React.useState({ user_id: null })
@@ -40,7 +24,6 @@ export default function Categories(props) {
             setCategory({
                 user_id
             })
-            console.log("userid", user_id)
 
             if (!token) {
                 props.navigation.navigate("Login");
@@ -52,15 +35,44 @@ export default function Categories(props) {
                 }
             }
 
-
             const response = await API.post("/Categories", category, config)
             alert('Adding Category Succeeded')
-            console.log(category)
+            findUserCategories()
+            // setCategory()
         } catch (err) {
             console.log(err)
             alert("Adding Category Failed")
         }
     }
+
+    const findUserCategories = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const user_id = await AsyncStorage.getItem('user_id')
+            // setCategory({
+            //     user_id
+            // })
+
+            if (token === null) {
+                props.navigation.navigate("Login")
+            }
+
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const response = await API.get(`/UserCategories?user_id=${user_id}`, config)
+            setDataCategory(response.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    React.useEffect(() => {
+        findUserCategories()
+    }, [])
 
 
     return (
@@ -75,7 +87,7 @@ export default function Categories(props) {
             <View>
                 <Text mb={6} bold fontSize="2xl">List Category</Text>
                 <ScrollView horizontal>
-                    <FlatList flexDirection="row" numColumns={3} data={DummyList} renderItem={(itemData) => {
+                    <FlatList flexDirection="row" numColumns={3} data={dataCategory} renderItem={(itemData) => {
                         return (
                             <Button borderRadius={5} w="100px" bg="orange.200" p={1} m={1}><Text bold color="#fff" textAlign="center">{itemData.item.name}</Text></Button>
                         )

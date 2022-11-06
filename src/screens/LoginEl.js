@@ -15,7 +15,7 @@ export default function Login(props) {
             [name]: value
         })
     }
-    console.log("this form", form)
+    // console.log("this form", form)
 
     const handleLogin = async () => {
         try {
@@ -35,11 +35,12 @@ export default function Login(props) {
             if (response) {
                 await AsyncStorage.setItem('token', response.data.token);
                 await AsyncStorage.setItem('user_id', response.data.user._id);
+                await AsyncStorage.setItem('user_name', response.data.user.firstName);
             }
             // console.log("ini user id", user_id)
             const value = await AsyncStorage.getItem("token");
             if (value !== null) {
-                console.log(value);
+                // console.log(value);
                 props.navigation.navigate("MyTab");
             }
         } catch (error) {
