@@ -58,7 +58,6 @@ export default function AddList() {
                     testID='dateTimePicker'
                     value={date}
                     mode={mode}
-                    is24Hours={true}
                     display='default'
                     onChange={onChangeDate}
                 />)}

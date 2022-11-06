@@ -1,10 +1,6 @@
 import { View, Text, Pressable, HStack, Image, VStack } from "native-base";
 
 export default function Detail(props) {
-    const handleBack = () => {
-        props.navigation.navigate("List")
-    }
-    console.log("isi props", props.route.params.itemData.item)
 
     const done = "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667556672/WaysTodo/icon__Check_Circle__nukfzp.png"
 

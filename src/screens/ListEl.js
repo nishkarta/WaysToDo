@@ -5,6 +5,9 @@ import { StyleSheet, Platform } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 
+import { API } from '../config/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const done = "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667556672/WaysTodo/icon__Check_Circle__nukfzp.png"
 
@@ -18,7 +21,7 @@ const DummyList = [
         category: 'Study',
         name: 'React Native',
         date: '21 December 2022',
-        desc: 'react tralala trilili dududu dudu dudud.......',
+        desc: 'react tralala trilili dududu dudu dududu......',
         status: 'done',
     },
     {
@@ -54,6 +57,10 @@ const DummyList = [
         status: 'todo',
     },
 ]
+
+
+
+
 export default function List(props) {
     const [date, setDate] = React.useState(new Date())
     const [mode, setMode] = React.useState('date')
@@ -75,17 +82,41 @@ export default function List(props) {
         setMode(currentMode)
     }
 
-    const [courseGoals, setCourseGoals] = React.useState([])
+    const [userName, setUserName] = React.useState('')
 
-    const handleDetail = (todo) => {
-        props.navigation.navigate("Detail", { itemData })
+    const getUser = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            if (token === null) {
+                props.navigation.navigate("Login")
+            }
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const response = await API.get("/auth/user", config)
+            // console.log(response)
+            // const userName = response.data.user.firstName
+            // console.log(response)
+            setUserName(response.data.user.firstName)
+            console.log("ini userName", userName)
+        } catch (error) {
+            console.log(error)
+        }
     }
+
+    React.useEffect(() => {
+        getUser()
+    })
+
     return (
         <>
             <View p={7} className="top" style={{ flex: 1 }}>
                 <HStack mb={3} justifyContent="space-between">
                     <VStack>
-                        <Text bold fontSize="2xl">Hi Riri.. 😚</Text>
+                        <Text bold fontSize="2xl">Hi {userName}.. 😚</Text>
                         <Text color="#FF5555">20 Lists</Text>
                     </VStack>
                     <Image alt="profile" source={{ uri: "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667558303/WaysTodo/wes-hicks-AgPVsu54j8Q-unsplash_czl1gv.jpg" }} width={20} height={20} borderRadius={50} borderWidth={3} borderColor="#FF5555" />
