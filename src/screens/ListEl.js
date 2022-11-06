@@ -14,53 +14,6 @@ const done = "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667556672/Ways
 const todo = "https://res.cloudinary.com/dm8xxyjfx/image/upload/v1667563372/WaysTodo/Ellipse_1_l2mbbh.png"
 
 
-
-const DummyList = [
-    {
-        id: 1,
-        category: 'Study',
-        name: 'React Native',
-        date: '21 December 2022',
-        desc: 'react tralala trilili dududu dudu dududu......',
-        status: 'done',
-    },
-    {
-        id: 2,
-        category: 'Homework',
-        name: 'WaysFood',
-        date: '22 December 2022',
-        desc: 'pr waysfood banyak beud syalala',
-        status: 'todo',
-    },
-    {
-        id: 3,
-        category: 'Work Out',
-        name: 'HIIT',
-        date: '23 December 2022',
-        desc: 'olahragaaaaaa...',
-        status: 'done',
-    },
-    {
-        id: 4,
-        category: 'Study',
-        name: 'Psychology',
-        date: '24 December 2022',
-        desc: 'biar bisa baca orang',
-        status: 'todo',
-    },
-    {
-        id: 5,
-        category: 'Study',
-        name: 'Mathematic',
-        date: '24 December 2022',
-        desc: 'biar otaknya jalan',
-        status: 'todo',
-    },
-]
-
-
-
-
 export default function List(props) {
     const [date, setDate] = React.useState(new Date())
     const [mode, setMode] = React.useState('date')
@@ -159,6 +112,10 @@ export default function List(props) {
         getLists()
     }, [])
 
+    // React, React.useEffect(() => {
+    //     getLists()
+    // })
+
     return (
         <>
             <View p={7} className="top" style={{ flex: 1 }}>
@@ -237,7 +194,7 @@ export default function List(props) {
                     )
                 }}
                     keyExtractor={(item, index) => {
-                        return item.id;
+                        return item._id;
                     }}
                 />
                 {show && (<DateTimePicker

@@ -31,7 +31,7 @@ export default function Register(props) {
             const body = JSON.stringify(form);
 
             const response = await API.post("/auth/register", body, config)
-                (response)
+            console.log(response)
 
             if (response) {
                 await AsyncStorage.setItem('token', response.data.token)
@@ -41,7 +41,7 @@ export default function Register(props) {
             if (value !== null) {
                 console.log(value)
             }
-            alert('Registratin Succeeded')
+            alert('Registration Succeeded')
             props.navigation.navigate("Login")
         } catch (e) {
             console.log(e);
